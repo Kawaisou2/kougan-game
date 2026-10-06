@@ -18,7 +18,6 @@
 <meta name="twitter:title" content="こうがん踏み脱出ゲーム">
 <meta name="twitter:description" content="こうがん以外を踏むとスタートからやり直し。5×5のマスを抜けて脱出しよう！">
 <meta name="twitter:image" content="https://kawaisou2.github.io/kougan-game/og.jpg">
-
 <style>
 :root{
   --bg:#120c10; --fg:#ffe6f2; --sub:#c98fb0;
@@ -78,7 +77,7 @@ h1{font-size:1.25rem;margin:0 0 2px;
   font-family:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif}
 .c.small{font-size:5cqw;line-height:1.1}
 .c.boom{background:var(--bad);color:#fff;border-color:var(--bad)}
-.c.fog{opacity:.12;pointer-events:none}
+.c.fog{pointer-events:none;font-size:0!important;background:rgba(255,160,205,.035);border-color:rgba(255,175,218,.17);box-shadow:none}
 .c.dim{opacity:.55}
 button{font:inherit;font-weight:600;padding:10px 16px;border-radius:10px;
   border:2px solid var(--line);background:var(--tile);color:var(--fg);cursor:pointer}
@@ -147,6 +146,7 @@ h1{padding-right:84px}
 .c.boom{box-shadow:inset 0 3px 5px rgba(255,255,255,.25),inset 0 -7px 10px rgba(0,0,0,.45),0 4px 7px rgba(0,0,0,.4)}
 .c.me::after{display:none}
 .c.fog{backdrop-filter:none;-webkit-backdrop-filter:none}
+.c.fog::after{display:none}
 
 .sparkLayer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .sparkEdge{position:absolute;inset:0;pointer-events:none}
@@ -161,14 +161,48 @@ h1{padding-right:84px}
 #popupCard.note #popupText,#popupCard.goal #popupText{font-style:normal;font-weight:700}
 #popupCard.note{font-style:normal;font-weight:700;line-height:1.7}
 
-#shareBox{display:none;margin-top:16px}
-#popupCard.share #shareBox{display:block}
-#shareInfo{font-size:.9rem;font-weight:700;color:var(--sub);margin-bottom:10px;line-height:1.5}
+#shareInfo{font-size:.9rem;font-weight:700;color:#ffd3ea;margin-bottom:10px;line-height:1.5}
 #shareBtn{color:#fff;font-weight:800;letter-spacing:.04em;padding:10px 22px;border-radius:999px;
   border:1px solid #000;background:linear-gradient(180deg,#3a3a3e 0%,#0d0d0f 100%);
   box-shadow:0 3px 0 #000,0 5px 8px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.3);
   font-family:inherit;transition:transform .06s,box-shadow .06s}
 #shareBtn:active{transform:translateY(3px);box-shadow:0 0 0 #000,0 1px 3px rgba(0,0,0,.45)}
+
+/* 出口が移動したよポップアップ：出口マスと同じ水色 */
+#popupCard.exit{border-color:#5be6ff;box-shadow:0 0 24px 6px #5be6ff88,0 0 50px 10px #5be6ff33;font-family:"Zen Maru Gothic","M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif}
+#popupCard.exit #popupTitle{color:#5be6ff}
+#popupCard.exit #popupText{font-weight:700;font-size:.9rem;line-height:1.7}
+#popupCard.exit #popupClose{border-color:#5be6ff}
+/* スタートのマス（現在地が離れたら、うっすら表示） */
+.c.startcell{color:rgba(255,190,225,.5);background:rgba(255,110,180,.10);border-color:rgba(255,150,200,.28);
+  font-size:3.6cqw;font-weight:700;opacity:1;box-shadow:inset 0 2px 4px rgba(255,255,255,.10),0 3px 5px rgba(0,0,0,.35)}
+.c.startcell::after{opacity:.35}
+
+/* 最後の「ゲームの作り手より」：シェアを主役にし、はじめからを押すまで残す */
+#shareBox{display:none;margin:2px 0 4px}
+#popupCard.share #shareBox{display:block}
+#popupCard.share #shareInfo{font-size:1.15rem;font-weight:900;color:#ff4fa3;margin:0 0 8px;line-height:1.4;letter-spacing:.02em}
+#recordLabel{display:none;font-size:.78rem;font-weight:700;color:var(--sub);letter-spacing:.3em;margin-top:0;margin-bottom:0;line-height:1.3}
+#popupCard.share #recordLabel{display:block}
+#popupCard.copied #recordLabel{display:none}
+#popupCard.copied #shareInfo{white-space:pre-line}
+#shareLead{font-size:.92rem;font-weight:900;color:var(--fg);opacity:.7;margin-bottom:14px;line-height:1.6}
+#popupCard.share #shareBtn{font-size:1.05rem;padding:13px 30px}
+#makerLabel{display:none;font-size:.74rem;font-weight:700;color:var(--sub);margin-top:18px;letter-spacing:.12em}
+#popupCard.share #makerLabel{display:block}
+#popupCard.share #popupText{font-size:.72rem;font-weight:500;opacity:.7;margin-top:4px;line-height:1.6}
+#popupWrap.final{pointer-events:none;background:rgba(10,6,8,.68)}
+#popupWrap.final #popupCard{pointer-events:auto}
+#popupWrap.final #popupClose{display:none}
+.finalPopup #reset{z-index:60}
+
+/* 〜脱出成功〜：きらめくグラデーション文字 */
+#popupCard.goal #popupTitle{font-size:1.75rem;font-weight:900;letter-spacing:.1em;margin-bottom:10px;
+  background:linear-gradient(90deg,#ff4fa3,#ffb347,#ff4fa3,#c85bff,#ff4fa3);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 2px 0 rgba(168,26,104,.28)) drop-shadow(0 0 8px rgba(255,160,210,.7));
+  animation:titleShine 3s linear infinite}
+@keyframes titleShine{to{background-position:-250% 0}}
 </style>
 </head>
 <body>
@@ -177,7 +211,7 @@ h1{padding-right:84px}
 <div id="marqueeWrap"></div>
 <div id="grid"></div>
 <button id="reset">はじめから</button>
-<div id="popupWrap"><div id="popupCard"><button id="popupClose" type="button" aria-label="閉じる">×</button><div id="popupTitle"></div><img id="popupImg" alt=""><div id="popupText"></div><div id="shareBox"><div id="shareInfo"></div><button id="shareBtn" type="button">𝕏 でシェアする</button></div></div></div>
+<div id="popupWrap"><div id="popupCard"><button id="popupClose" type="button" aria-label="閉じる">×</button><div id="popupTitle"></div><img id="popupImg" alt=""><div id="shareBox"><div id="recordLabel">記録</div><div id="shareInfo"></div><div id="shareLead">M男性に感謝を込めて…♡</div><button id="shareBtn" type="button">𝕏 でシェアする</button></div><div id="makerLabel">ゲームの作り手より</div><div id="popupText"></div></div></div>
 
 <script>
 const N=5;
@@ -186,18 +220,24 @@ const NG_FLOWERS=["🌷","🌹","🪻","🌻"];
 const DECOY_KOUKAN="こうかん"; // 「こうがん」に似せたニセの手がかり（踏むとあな）
 const DECOY_GANKOU="がんこう"; // 「こうがん」の文字違いのニセの手がかり（踏むとあな）
 const DECOY_KONKAN="こんかん"; // 「こうがん」の文字違いのニセの手がかり（踏むとあな）
-const DECOYS=[DECOY_KOUKAN,DECOY_GANKOU,DECOY_KONKAN];
+const DECOY_KOUSAN="こうさん"; // 「降参」にかけたニセの手がかり
+const DECOYS=[DECOY_KOUKAN,DECOY_GANKOU,DECOY_KONKAN,DECOY_KOUSAN];
 const PITFALL="🕳"; // 落とし穴（踏むとあな）
 const KOUGAN_MSGS=[
- "-` ̗ 𝐍𝐢𝐜𝐞 ̖ ´-",
+ "ナイス！",
  "いい調子！",
  "もっといこう！",
  "慣れてきたんじゃない？",
  "M男性喜んでるよ！",
  "くせになってきたでしょ",
- "うまくかわしてるねぇ"
+ "うまくかわしてるねぇ",
+ "下から汚い声が聞こえる〜きも〜〜",
+ "みんなあなたの足が好きみたい",
+ "ちょっと！足舐めようとしてる人誰！！",
+ "早く脱出しないと！",
+ "急いで！！"
 ];
-const KOUGAN_MSG_LAST="時間かかりすぎじゃない？";
+const KOUGAN_MSG_LAST="急いで！早く！！";
 const VIEW_RADIUS=0; // 自分から何マスまで はっきり見えるか（視界制限。狭いほど難しい）
 const levels=[
  {t:"怪しいイベントに迷い込んでしまった…！\n人がいっぱいで出口に辿り着けそうにない💦\nでも、M男性たちが寝転がって\n道を作ってくれたよ💡\nこうがんを踏んで出口を目指そう！",
@@ -205,13 +245,14 @@ const levels=[
   ok:()=>"こうがん",
   ng:()=>{
    const roll=Math.random();
-   if(roll<.12)return DECOY_KOUKAN;
-   if(roll<.24)return DECOY_GANKOU;
-   if(roll<.36)return DECOY_KONKAN;
+   if(roll<.18)return DECOY_KOUKAN;
+   if(roll<.36)return DECOY_GANKOU;
+   if(roll<.54)return DECOY_KONKAN;
+   if(roll<.72)return DECOY_KOUSAN;
    return NG_FLOWERS[Math.floor(Math.random()*NG_FLOWERS.length)];
   }},
 ];
-let lv=0,cells=[],pos,kouganCount=0,finished=false,missCount=0,t0=0,clearSec=0;
+let lv=0,cells=[],pos,kouganCount=0,finished=false,missCount=0,t0=0,clearSec=0,goalR=0,goalC=N-1,exitMoved=false;
 const SHARE_URL="https://kawaisou2.github.io/kougan-game/";
 
 // --- 効果音（外部ファイル不要、Web Audioで生成） ---
@@ -448,26 +489,27 @@ document.addEventListener("visibilitychange",()=>{
 });
 
 
-function makeMazePath(){
+function makeMazePath(sr,sc,gr,gc,forbid){
+ sr=sr==null?N-1:sr; sc=sc==null?0:sc; gr=gr==null?0:gr; gc=gc==null?N-1:gc;
  const parent={};
  const visited=new Set();
- const startKey=(N-1)+","+0;
+ const startKey=sr+","+sc;
  visited.add(startKey);
- const stack=[[N-1,0]];
+ const stack=[[sr,sc]];
  while(stack.length){
   const [r,c]=stack[stack.length-1];
   const dirs=[[1,0],[-1,0],[0,1],[0,-1]].sort(()=>Math.random()-.5);
   let moved=false;
   for(const [dr,dc] of dirs){
    const nr=r+dr, nc=c+dc, key=nr+","+nc;
-   if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited.has(key)){
+   if(nr>=0&&nr<N&&nc>=0&&nc<N&&!visited.has(key)&&!(forbid&&forbid===key)){
     visited.add(key); parent[key]=r+","+c; stack.push([nr,nc]); moved=true; break;
    }
   }
   if(!moved)stack.pop();
  }
  // スタート→ゴール順の経路配列と、マス集合の両方を返す
- const ordered=[]; let cur=0+","+(N-1);
+ const ordered=[]; let cur=gr+","+gc;
  while(true){
   ordered.push(cur);
   if(cur===startKey)break;
@@ -490,18 +532,30 @@ function maxStraightRun(ordered){
  return max;
 }
 
+function straightCount(ordered){
+ // 「前の向きと同じ向きにそのまま進む」マスの数（少ないほどジグザグ）
+ let n=0;
+ for(let i=1;i<ordered.length-1;i++){
+  const [pr,pc]=ordered[i-1].split(",").map(Number);
+  const [r,c]=ordered[i].split(",").map(Number);
+  const [nr,nc]=ordered[i+1].split(",").map(Number);
+  if((r-pr)===(nr-r)&&(c-pc)===(nc-c))n++;
+ }
+ return n;
+}
+function pathScore(ordered){
+ // 小さいほど良い：直進が少なく、遠回り（経路が長い）ほど高評価
+ return maxStraightRun(ordered)*6+straightCount(ordered)*4-ordered.length;
+}
 function build(){
  const L=levels[lv];
  // 迷路ルートを何本か作り、「一直線に3マス以上進む区間」が最も少ない
  // (=ジグザグ度が高い) ものを採用する。花マスの多さは二の次にする。
- let bestOrdered=null, bestRun=Infinity, bestFlowers=-1;
- for(let t=0;t<30;t++){
+ let bestOrdered=null, bestScore=Infinity;
+ for(let t=0;t<600;t++){
   const ordered=makeMazePath();
-  const run=maxStraightRun(ordered);
-  const flowerCount=N*N-ordered.length;
-  if(run<bestRun || (run===bestRun && flowerCount>bestFlowers)){
-   bestRun=run; bestFlowers=flowerCount; bestOrdered=ordered;
-  }
+  const sc=pathScore(ordered);
+  if(sc<bestScore){bestScore=sc;bestOrdered=ordered;}
  }
  const safe=new Set(bestOrdered);
  cells=[];
@@ -509,32 +563,17 @@ function build(){
   const s=safe.has(i+","+j);
   cells.push({v:s?L.ok():L.ng(),safe:s});
  }
- // どのマスに立っても、上下左右方向にそれぞれ2マスまでのどこかに
- // 必ずこうがんがあるように補完する
- for(let i=0;i<N;i++)for(let j=0;j<N;j++){
-  const nbrs=[];
-  for(const [dr,dc] of [[1,0],[-1,0],[0,1],[0,-1]]){
-   for(const dist of [1,2]){
-    const ni=i+dr*dist, nj=j+dc*dist;
-    if(ni>=0&&ni<N&&nj>=0&&nj<N)nbrs.push([ni,nj]);
-   }
-  }
-  const hasSafe=nbrs.some(([ni,nj])=>cells[ni*N+nj].safe);
-  if(!hasSafe){
-   const [ni,nj]=nbrs[Math.floor(Math.random()*nbrs.length)];
-   cells[ni*N+nj].safe=true;
-   cells[ni*N+nj].v=L.ok();
-  }
- }
+ // （以前はここで「こうがん」を水増ししていたが、難易度を上げるため廃止。正解は経路のマスだけ）
  // ゴールマスは必ず安全でGOAL表示
- const gi=0, gj=N-1;
+ goalR=0; goalC=N-1; exitMoved=false;
+ const gi=goalR, gj=goalC;
  cells[gi*N+gj].safe=true;
  cells[gi*N+gj].v="出口";
  // 落とし穴：1列に1つの割合で、既に不安全なマスの中からランダムに配置
  for(let j=0;j<N;j++){
   const candidates=[];
   for(let i=0;i<N;i++){
-   if(i===0&&j===N-1)continue; // ゴールマスは除外
+   if(i===goalR&&j===goalC)continue; // ゴールマスは除外
    if(!cells[i*N+j].safe)candidates.push(i*N+j);
   }
   if(candidates.length){
@@ -557,13 +596,17 @@ function showPopup(text,onClose,title,variant){
  document.getElementById("popupText").textContent=text;
  card.classList.toggle("note",variant==="note");
  card.classList.toggle("intro",variant==="intro");
- card.classList.toggle("goal",variant==="goal");
- card.classList.toggle("share",variant==="goal"||variant==="note");
- if(variant==="goal"||variant==="note")document.getElementById("shareInfo").textContent="ミス"+missCount+"回 ・ "+fmtTime(clearSec)+"でクリア！";
+ card.classList.toggle("goal",variant==="final");
+ card.classList.toggle("exit",variant==="exit");
+ card.classList.remove("copied");
+ card.classList.toggle("share",variant==="final");
+ wrap.classList.toggle("final",variant==="final");
+ document.documentElement.classList.toggle("finalPopup",variant==="final");
+ if(variant==="final")document.getElementById("shareInfo").textContent="ミス"+missCount+"回 ・ 脱出まで"+fmtTime(clearSec);
  clearSparkles();
  popupOnClose=onClose||null;
  wrap.classList.add("show");
- if(variant==="goal")spawnSparkles();
+ if(variant==="final")spawnSparkles();
 }
 
 // ゴール時のキラキラ演出（文字と重ならない位置：カードの外側と縁だけ）
@@ -600,6 +643,10 @@ function spawnSparkles(){
 }
 
 function fmtTime(sec){return sec>=60?Math.floor(sec/60)+"分"+(sec%60)+"秒":sec+"秒";}
+function setShareMsg(m){
+ document.getElementById("shareInfo").textContent=m;
+ document.getElementById("popupCard").classList.add("copied");
+}
 function shareResult(){
  const text="こうがん踏み脱出ゲームを、ミス"+missCount+"回・"+fmtTime(clearSec)+"で脱出成功しました🎉\n#こうがん踏み脱出ゲーム";
  const intent="https://twitter.com/intent/tweet?text="+encodeURIComponent(text)+"&url="+encodeURIComponent(SHARE_URL);
@@ -608,8 +655,8 @@ function shareResult(){
  if(w)return;
  const info=document.getElementById("shareInfo");
  const fallbackCopy=()=>{
-  try{navigator.clipboard.writeText(text+"\n"+SHARE_URL).then(()=>{info.textContent="結果をコピーしました！Xに貼り付けてね";},()=>{info.textContent="シェアできませんでした…";});}
-  catch(e){info.textContent="シェアできませんでした…";}
+  try{navigator.clipboard.writeText(text+"\n"+SHARE_URL).then(()=>{setShareMsg("結果をコピーしました！\nXに貼り付けてね");},()=>{setShareMsg("シェアできませんでした…");});}
+  catch(e){setShareMsg("シェアできませんでした…");}
  };
  try{
   if(navigator.share){navigator.share({text:text,url:SHARE_URL}).catch(fallbackCopy);return;}
@@ -619,7 +666,8 @@ function shareResult(){
 document.getElementById("shareBtn").onclick=shareResult;
 function closePopup(){
  clearSparkles();
- document.getElementById("popupWrap").classList.remove("show");
+ document.getElementById("popupWrap").classList.remove("show","final");
+ document.documentElement.classList.remove("finalPopup");
  const cb=popupOnClose; popupOnClose=null;
  if(cb)cb();
 }
@@ -641,12 +689,13 @@ function draw(boom){
  const g=document.getElementById("grid"); g.innerHTML="";
  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
   const d=document.createElement("div"), k=i*N+j;
-  const isGoal=(i===0&&j===N-1);
+  const isGoal=(i===goalR&&j===goalC);
   const dist=Math.abs(pos.r-i)+Math.abs(pos.c-j);
   d.className="c"; d.textContent=cells[k].v;
   if(cells[k].v==="こうがん"||DECOYS.includes(cells[k].v))d.classList.add("kougan");
   else if(!isGoal&&cells[k].v.length>2)d.classList.add("small");
   if(isGoal)d.classList.add("goal");
+  const isStart=(i===N-1&&j===0), onStart=(pos.r===N-1&&pos.c===0);
   if(boom&&boom.r===i&&boom.c===j){d.classList.add("boom");d.textContent="×"}
   else if(pos.r===i&&pos.c===j){d.classList.add("me");d.innerHTML='<span class="footemoji">🦶🏻</span>'}
   else if(dist===1)d.classList.add("near");
@@ -655,9 +704,39 @@ function draw(boom){
    if(dist>VIEW_RADIUS+1)d.classList.add("fog");
    else if(dist>VIEW_RADIUS)d.classList.add("dim");
   }
+  if(isStart&&!onStart&&!isGoal&&!(boom&&boom.r===i&&boom.c===j)){d.classList.remove("fog","dim","kougan","small");d.classList.add("startcell");d.textContent="スタート";}
   d.onclick=()=>move(i,j);
   g.appendChild(d);
  }
+}
+// こうがんを5回踏むと出口が別の場所へ移動する（新しい道もちゃんとできる）
+function moveExit(){
+ const oldR=goalR, oldC=goalC, oldKey=oldR+","+oldC;
+ const cand=[];
+ for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+  if(i===oldR&&j===oldC)continue;
+  if(i===N-1&&j===0)continue; // スタート地点は出口にしない
+  if(Math.abs(pos.r-i)+Math.abs(pos.c-j)>=3)cand.push([i,j]);
+ }
+ if(!cand.length)return false;
+ const [nr,nc]=cand[Math.floor(Math.random()*cand.length)];
+ let best=null,bs=Infinity;
+ for(let t=0;t<200;t++){
+  const o=makeMazePath(pos.r,pos.c,nr,nc,oldKey);
+  const sc=pathScore(o);
+  if(sc<bs){bs=sc;best=o;}
+ }
+ const L=levels[lv];
+ // 旧出口はニセ物（踏むとミス）に
+ cells[oldR*N+oldC]={v:L.ng(),safe:false};
+ for(const key of best){
+  const [r,c]=key.split(",").map(Number), cell=cells[r*N+c];
+  if(!cell.safe){cell.safe=true;cell.v=L.ok();}
+ }
+ goalR=nr; goalC=nc;
+ cells[nr*N+nc]={v:"出口",safe:true};
+ exitMoved=true;
+ return true;
 }
 function move(i,j){
  if(finished)return;
@@ -671,6 +750,7 @@ function move(i,j){
   let text,title;
   if(missedVal===DECOY_KOUKAN){title="スタートに戻る";text="おしい！これは「こうかん」だよ\n左の玉と右の玉交換しちゃう？";}
   else if(missedVal===DECOY_GANKOU){title="スタートに戻る";text="あれれ、これは「がんこう」だよ\n鋭い眼光( •̀∀•́ )✧";}
+  else if(missedVal===DECOY_KOUSAN){title="スタートに戻る";text="え、こうさん？！\n白旗上げないで士気上げていこうね";}
   else if(missedVal===DECOY_KONKAN){title="スタートに戻る";text="ざんねん！これは「こんかん」だよ\nチリコンカン🤠🎶";}
   else if(missedVal===PITFALL){title="スタートに戻る";text="ざんねん！ここは落とし穴！\n恋に落ちちゃったのかしら(´･_･`)";}
   else{title="スタートに戻る";text="こら！お花踏んじゃだめでしょ😡\nスタートからやり直しなさい";}
@@ -683,18 +763,19 @@ function move(i,j){
   const msg=kouganCount<=KOUGAN_MSGS.length?KOUGAN_MSGS[kouganCount-1]:KOUGAN_MSG_LAST;
   showMarquee(msg);
  }
- pos={r:i,c:j}; draw();
- if(i===0&&j===N-1){
+ pos={r:i,c:j};
+ let exitJustMoved=false;
+ if(!exitMoved&&kouganCount>=5&&!(i===goalR&&j===goalC))exitJustMoved=moveExit();
+ draw();
+ if(exitJustMoved){sndStep();vib(12);showPopup("あれっ…出口が動いた！？\nこうがんで足場を作り直してね💦頼んだよ！",null,"出口が移動した！","exit");return;}
+ if(i===goalR&&j===goalC){
   sndGoal();
   if(lv<levels.length-1)showPopup("出口に到着！ つぎのレベルへ →",()=>{lv++;build();});
   else{
    finished=true; clearSec=Math.max(1,Math.round((Date.now()-t0)/1000));
    document.documentElement.classList.add("celebrate");
    setBgmMode("calm");
-   showPopup("脱出成功！気をつけて帰ってね♡",()=>{
-    document.documentElement.classList.remove("celebrate");
-    showPopup("遊んでくれてありがとう！\n右上の「はじめから」を押すと\nもう一度遊べるよ",null,"🐱 カワウソより","note");
-   },"🎉おめでとう🎉","goal");
+   showPopup("遊んでくれてありがとう！\n右上の「はじめから」を押すと\nもう一度遊べるよ🐱",null,"〜脱出成功〜","final");
   }
  }else{sndStep();vib(12);}
 }

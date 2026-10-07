@@ -276,7 +276,25 @@ function beep(freq,dur,type,vol,delay){
   osc.start(t0); osc.stop(t0+dur);
  }catch(e){}
 }
-function sndStep(){beep(1568,.65,"triangle",.14);beep(3136,.5,"triangle",.05,.01);}
+function sndStep(){ // ぷにっ：低めの丸い音が潰れて、ぽよんと戻る
+ try{
+  const ctx=getActx(), t=ctx.currentTime;
+  const o=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
+  o.type="sine";
+  o.frequency.setValueAtTime(520,t);
+  o.frequency.exponentialRampToValueAtTime(210,t+.06);
+  o.frequency.exponentialRampToValueAtTime(360,t+.15);
+  o.frequency.exponentialRampToValueAtTime(260,t+.26);
+  f.type="lowpass"; f.frequency.value=1400; f.Q.value=2.5;
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(.34,t+.012);
+  g.gain.exponentialRampToValueAtTime(.12,t+.1);
+  g.gain.exponentialRampToValueAtTime(.001,t+.3);
+  o.connect(f); f.connect(g); g.connect(ctx.destination);
+  o.start(t); o.stop(t+.32);
+ }catch(e){}
+ beep(900,.05,"sine",.05,.002);
+}
 function sndMiss(){beep(180,.28,"sawtooth",.22);beep(110,.32,"sawtooth",.18,.05);}
 function sndChime(){ // はじめから：ツリーチャイム（音階が駆け上がる シャララララン！）
  const F=[1046.5,1174.7,1318.5,1568,1760,2093,2349.3,2637,3136,3520,4186];

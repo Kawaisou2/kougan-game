@@ -115,12 +115,16 @@ button{font:inherit;font-weight:600;padding:10px 16px;border-radius:10px;
 #marqueeWrap{display:block;position:relative;width:100%;height:1.7em;
   margin:6px 0;overflow:hidden;border-radius:10px;
   background:var(--tile);border:none}
-.marqueeText{position:absolute;top:50%;left:100%;transform:translate(0,-50%);
-  white-space:nowrap;color:rgba(255,255,255,.88);font-weight:400;font-size:.85rem;
+.marqueeText{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);transform-origin:center;
+  white-space:nowrap;color:rgba(255,255,255,.92);font-weight:400;font-size:.95rem;
   letter-spacing:.04em;
   font-family:"DotGothic16",monospace;
-  animation:marqueeRun 6s linear forwards}
-@keyframes marqueeRun{to{left:-100%}}
+  animation:marqueePop .42s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes marqueePop{
+  0%{transform:translate(-50%,-50%) scale(.05);opacity:0}
+  55%{transform:translate(-50%,-50%) scale(1.22);opacity:1}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.marqueeText{animation:none}}
 #reset{position:absolute;top:8px;right:12px;z-index:5;padding:4px 10px;font-size:.72rem;border-radius:8px;border-width:1px}
 #reset{white-space:nowrap;color:#fff;font-weight:800;letter-spacing:.04em;
   border:1px solid #a82468;border-radius:9px;
@@ -184,11 +188,11 @@ h1{padding-right:84px}
 /* 最後の「ゲームの作り手より」：シェアを主役にし、はじめからを押すまで残す */
 #shareBox{display:none;margin:2px 0 4px}
 #popupCard.share #shareBox{display:block}
-#popupCard.share #shareInfo{font-size:1.15rem;font-weight:900;color:#ff4fa3;margin:0 0 8px;line-height:1.4;letter-spacing:.02em}
+#popupCard.share #shareInfo{font-size:1.4rem;font-weight:900;color:#ff4fa3;margin:0 0 8px;line-height:1.4;letter-spacing:.02em}
 #recordLabel{display:none;font-size:.78rem;font-weight:700;color:var(--sub);letter-spacing:.3em;margin-top:0;margin-bottom:0;line-height:1.3}
 #popupCard.copied #recordLabel{display:none}
 #popupCard.copied #shareInfo{white-space:pre-line}
-#shareLead{font-size:.92rem;font-weight:900;color:var(--fg);opacity:.7;margin-bottom:14px;line-height:1.6}
+#shareLead{text-wrap:balance;font-size:.88rem;font-weight:700;color:var(--fg);opacity:.5;margin-bottom:14px;line-height:1.6}
 #popupCard.share #shareBtn{font-size:1.05rem;padding:13px 30px}
 #makerLabel{display:none;font-size:.74rem;font-weight:700;color:var(--sub);margin-top:18px;letter-spacing:.12em}
 #popupCard.share #makerLabel{display:block}
@@ -310,6 +314,7 @@ function sndChime(){ // はじめから：ツリーチャイム（音階が駆�
   beep(f*2,last?1.2:.5,"sine",last?.04:.022,d+.004);
  });
 }
+function track(name,title){try{if(window.goatcounter&&window.goatcounter.count)window.goatcounter.count({path:"event/"+name,title:title,event:true});}catch(e){}}
 function vib(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function sndGoal(){beep(660,.12,"sine",.2);beep(880,.12,"sine",.2,.12);beep(1100,.22,"sine",.22,.24);}
 
@@ -718,7 +723,7 @@ function build(){
   }
  }
  pos={r:N-1,c:0};
- kouganCount=0;
+ kouganCount=0; clearMarquee();
  document.getElementById("rule").innerHTML=L.r;
  draw();
  showPopup(L.t,null,"こうがん踏み脱出ゲーム","intro");
@@ -741,7 +746,7 @@ function showPopup(text,onClose,title,variant){
  wrap.classList.toggle("final",isEnd);
  wrap.classList.toggle("over",variant==="over");
  document.documentElement.classList.toggle("finalPopup",isEnd);
- if(variant==="final")document.getElementById("shareInfo").textContent="記録："+fmtTime(clearSec)+"（ミス"+missCount+"回）";
+ if(variant==="final"){document.getElementById("shareInfo").textContent="記録："+fmtTime(clearSec)+"（ミス"+missCount+"回）";document.getElementById("shareLead").textContent=clearPhrase(clearSec);}
  if(variant==="over")document.getElementById("shareInfo").textContent="こうがんを踏みすぎて\n射精されました…";
  clearSparkles();
  popupOnClose=onClose||null;
@@ -782,13 +787,23 @@ function spawnSparkles(){
  // 枠線にはキラキラを載せない
 }
 
-function fmtTime(sec){return sec>=60?Math.floor(sec/60)+"分"+(sec%60)+"秒":sec+"秒";}
+function clearPhrase(sec){
+ const P="";
+ if(sec<=3)return P+"速いね！こうがん踏み慣れてる！";
+ if(sec<=7)return P+"すべてのM男性に感謝♡";
+ if(sec<=12)return P+"こうがんは初めてかな？";
+ if(sec<=20)return P+"まだまだこうがんビギナーだね";
+ if(sec<=35)return P+"こうがんを愛でるところから始めよう";
+ if(sec<=50)return P+"あなたはこうがんを怖がっている";
+ return P+"枕の下にこうがんを入れてこうがんの夢を見なさい";
+}
+function fmtTime(sec){return sec>=60?Math.floor(sec/60)+"分"+(sec%60?(sec%60)+"秒":""):sec+"秒";}
 function setShareMsg(m){
  document.getElementById("shareInfo").textContent=m;
  document.getElementById("popupCard").classList.add("copied");
 }
 function shareResult(){
- const text=gameOver?("【こうがん踏み脱出ゲーム】\n\n💧脱出失敗💧\nM男性から射精されました……\n\n#こうがん踏み脱出ゲーム\n"+SHARE_URL):"【こうがん踏み脱出ゲーム】\n\n✨脱出成功✨\n記録："+fmtTime(clearSec)+"（ミス"+missCount+"回）\n\n#こうがん踏み脱出ゲーム\n"+SHARE_URL;
+ const text=gameOver?("【こうがん踏み脱出ゲーム】\n\n💧脱出失敗💧\nM男性から射精されました……\n\n#こうがん踏み脱出ゲーム\n"+SHARE_URL):"【こうがん踏み脱出ゲーム】\n\n✨脱出成功✨\n記録："+fmtTime(clearSec)+"（ミス"+missCount+"回）\n"+clearPhrase(clearSec)+"\n\n#こうがん踏み脱出ゲーム\n"+SHARE_URL;
  const intent="https://twitter.com/intent/tweet?text="+encodeURIComponent(text);
  let w=null;
  try{w=window.open(intent,"_blank");}catch(e){}
@@ -812,16 +827,17 @@ function closePopup(){
  if(cb)cb();
 }
 document.getElementById("popupClose").onclick=closePopup;
+function clearMarquee(){
+ const wrap=document.getElementById("marqueeWrap");
+ wrap.classList.remove("show"); wrap.innerHTML="";
+}
 function showMarquee(text){
+ // 中心からポンと浮かび上がり、次のマスを踏むまで表示したままにする
  const wrap=document.getElementById("marqueeWrap");
  wrap.innerHTML="";
  const span=document.createElement("span");
  span.className="marqueeText";
  span.textContent=text;
- span.addEventListener("animationend",()=>{
-  wrap.classList.remove("show");
-  wrap.innerHTML="";
- });
  wrap.appendChild(span);
  wrap.classList.add("show");
 }
@@ -882,7 +898,8 @@ function moveExit(){
 function move(i,j){
  if(finished)return;
  if(Math.abs(pos.r-i)+Math.abs(pos.c-j)!==1)return;
- if(!t0)t0=Date.now();
+ if(!t0){t0=Date.now();track("start","プレイ開始");}
+ clearMarquee();
  if(!cells[i*N+j].safe){
   const missedVal=cells[i*N+j].v;
   draw({r:i,c:j});
@@ -901,9 +918,9 @@ function move(i,j){
  }
  if(cells[i*N+j].v==="こうがん"){
   kouganCount++; totalKougan++;
-  if(totalKougan>=16){
+  if(totalKougan>=20){
    pos={r:i,c:j}; draw();
-   finished=true; gameOver=true;
+   finished=true; gameOver=true; track("gameover","ゲームオーバー");
    sndMiss(); vib([260,70,120,70,260]);
    setBgmMode("choir");
    showPopup("足の裏がべちゃべちゃになって\n歩く気力がないです…\n元気になったら\n右上の「はじめから」を押して\n再開しよう",null,"ゲームオーバー","over");
@@ -921,7 +938,7 @@ function move(i,j){
   sndGoal();
   if(lv<levels.length-1)showPopup("出口に到着！ つぎのレベルへ →",()=>{lv++;build();});
   else{
-   finished=true; clearSec=Math.max(1,Math.round((Date.now()-t0)/1000));
+   finished=true; clearSec=Math.max(1,Math.round((Date.now()-t0)/1000)); track("clear","クリア");
    document.documentElement.classList.add("celebrate");
    setBgmMode("calm");
    showPopup("遊んでくれてありがとう！\n右上の「はじめから」を押すと\nもう一度遊べるよ🐱",null,"〜脱出成功〜","final");
@@ -931,5 +948,6 @@ function move(i,j){
 document.getElementById("reset").onclick=()=>{sndChime();finished=false;gameOver=false;totalKougan=0;missCount=0;t0=0;document.documentElement.classList.remove("celebrate");setBgmMode("club");lv=0;build()};
 build();
 </script>
+<script data-goatcounter="https://kougan-game.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
